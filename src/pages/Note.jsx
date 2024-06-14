@@ -169,9 +169,9 @@ const Note = () => {
                 const snapshot = await get(roomRef);
                 if (snapshot.exists()) {
                     const roomData = snapshot.val();
-                    setEditorHtml(prevState => ({ ...prevState, [roomId]: roomData.content }));
+                    setEditorHtml(roomData.content)
                     add(roomId, <ReactQuill
-                        value={editorHtml[roomId] || ''}
+                        value={editorHtml}
                         onChange={(html) => handleChange(html, roomId)}
                         modules={Note.modules}
                         formats={Note.formats}
@@ -181,7 +181,7 @@ const Note = () => {
                     onValue(roomRef, (snapshot) => {
                         const data = snapshot.val();
                         if (data) {
-                            setEditorHtml(prevState => ({ ...prevState, [roomId]: data.content }));
+                            setEditorHtml(data.content);
                         }
                     });
 
@@ -203,7 +203,6 @@ const Note = () => {
             }
         };
 
-
         const loadUserRooms = async () => {
             const userRef = ref(database, `users/${auth.currentUser.uid}/rooms`);
             const snapshot = await get(userRef);
@@ -214,20 +213,20 @@ const Note = () => {
                     const roomSnapshot = await get(roomRef);
                     if (roomSnapshot.exists()) {
                         const roomData = roomSnapshot.val();
-                        setEditorHtml(prevState => ({ ...prevState, [roomId]: roomData.content }));
+                        setEditorHtml(roomData.content)
                         add(roomId, <ReactQuill
-                            value={editorHtml[roomId] || ''}
+                            value={editorHtml}
                             onChange={(html) => handleChange(html, roomId)}
                             modules={Note.modules}
                             formats={Note.formats}
                             style={{ height: '80vh' }}
                         />, roomId);
 
-                        onValue(roomRef, (snapshot) => {
+                        const contentRef = ref(database, `rooms/${roomId}/content`);
+                        onValue(contentRef, (snapshot) => {
                             const data = snapshot.val();
-                            if (data) {
-                                setEditorHtml(prevState => ({ ...prevState, [roomId]: data.content }));
-                            }
+                            console.log(data);
+                            setEditorHtml(data);
                         });
 
                         const activeRef = ref(database, `rooms/${roomId}/active`);
